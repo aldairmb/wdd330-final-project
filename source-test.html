@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Top News Stories (BBC)</title>
+</head>
+<body>
+  <h1>Top News Stories (BBC)</h1>
+  <ul id="articles-list"></ul>
+
+  <script>
+    const apiKey = 'b9b25782075944c282a534210d4027eb'; // Replace with your News API key
+    const url = `https://newsapi.org/v2/top-headlines?sources=bbc-news&apiKey=${apiKey}`;
+
+    async function fetchTopStories() {
+      try {
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (data.status === 'ok' && data.articles.length > 0) {
+          const articlesList = document.getElementById('articles-list');
+          data.articles.slice(0, 10).forEach(article => {
+            const listItem = document.createElement('li');
+            listItem.innerHTML = `
+              <strong>Title:</strong> ${article.title} <br>
+              <strong>Author:</strong> ${article.author || 'Unknown'} <br>
+              <strong>Description:</strong> ${article.description || 'No description available.'} <br>
+              <strong>Source:</strong> ${article.source.name} <br>
+              <strong>URL:</strong> <a href="${article.url}" target="_blank">Read more</a><br>
+              <img src="${article.urlToImage}" alt="Image" style="width:100px;">
+              <hr>
+            `;
+            articlesList.appendChild(listItem);
+          });
+        } else {
+          console.log('No articles found.');
+        }
+      } catch (error) {
+        console.error('Error fetching articles:', error);
+      }
+    }
+
+    fetchTopStories();
+  </script>
+</body>
+</html>

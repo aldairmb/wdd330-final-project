@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bitcoin News</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f4;
+    }
+    .article {
+      background: #fff;
+      margin: 20px auto;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      max-width: 800px;
+    }
+    .article img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 8px;
+    }
+    .article h2 {
+      margin: 10px 0;
+    }
+    .article p {
+      margin: 5px 0;
+    }
+    .article a {
+      color: #007BFF;
+      text-decoration: none;
+    }
+    .article a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <h1 style="text-align: center;">Top Bitcoin News Articles</h1>
+  <div id="articles"></div>
+
+  <script>
+    const apiKey = 'b9b25782075944c282a534210d4027eb'; // Replace with your News API key
+    const articlesContainer = document.getElementById('articles');
+
+    // Fetch articles related to Bitcoin by keyword
+    async function fetchArticles() {
+      const url = `https://newsapi.org/v2/everything?q=bitcoin&language=en&sortBy=publishedAt&apiKey=${apiKey}`;
+
+      try {
+        const response = await fetch(url);
+        const data = await response.json();
+        
+        console.log('API Response:', data); // Debugging log to check the API response
+
+        if (data.status === 'ok' && data.articles.length > 0) {
+          const articles = data.articles
+            .filter(article => article.urlToImage) // Exclude articles without images
+            .slice(0, 10); // Limit to 10 articles
+
+          displayArticles(articles);
+        } else {
+          console.error('No articles found or API error:', data);
+          articlesContainer.innerHTML = '<p>No articles found.</p>';
+        }
+      } catch (error) {
+        console.error('Error fetching articles:', error);
+        articlesContainer.innerHTML = '<p>There was an error fetching the articles.</p>';
+      }
+    }
+
+    // Display articles
+    function displayArticles(articles) {
+      articlesContainer.innerHTML = ''; // Clear any existing content
+
+      articles.forEach(article => {
+        const articleEl = document.createElement('div');
+        articleEl.classList.add('article');
+        articleEl.innerHTML = `
+          <img src="${article.urlToImage}" alt="${article.title}">
+          <h2>${article.title}</h2>
+          <p><strong>Source:</strong> ${article.source.name}</p>
+          <p><strong>Author:</strong> ${article.author || 'Unknown'}</p>
+          <p><strong>Published Date:</strong> ${new Date(article.publishedAt).toLocaleDateString()}</p>
+          <p>${article.description || 'No description available.'}</p>
+          <a href="${article.url}" target="_blank">Read more</a>
+        `;
+        articlesContainer.appendChild(articleEl);
+      });
+    }
+
+    // Initialize
+    fetchArticles();
+  </script>
+</body>
+</html>
