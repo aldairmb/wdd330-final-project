@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>News API Filters Form</title>
+</head>
+<body>
+  <h1>Filter News Articles</h1>
+
+  <form id="news-filters">
+    <!-- Category Filter -->
+    <label for="category">Category:</label>
+    <select id="category" name="category">
+      <option value="">Select Category</option>
+      <option value="business">Business</option>
+      <option value="entertainment">Entertainment</option>
+      <option value="general">General</option>
+      <option value="health">Health</option>
+      <option value="science">Science</option>
+      <option value="sports">Sports</option>
+      <option value="technology">Technology</option>
+    </select>
+    <br><br>
+
+    <!-- Source Filter -->
+    <label for="source">Source:</label>
+    <select id="source" name="source">
+      <option value="">Select Source</option>
+      <option value="bbc-news">BBC News</option>
+      <option value="nbc-news">NBC News</option>
+      <option value="fox-news">Fox News</option>
+      <option value="time">Time</option>
+      <option value="politico">Politico</option>
+      <option value="associated-press">Associated Press</option>
+      <option value="the-washington-post">The Washington Post</option>
+        <option value="al-jazeera-english">Al Jazeera</option>
+        <option value="bloomberg">Bloomberg</option>
+        <option value="mashable">Mashable</option>
+        <option value="the-verge">The Verge</option>
+        <option value="espn">ESPN</option>
+        <option value="fortune">Fortune</option>
+
+    </select>
+    <br><br>
+
+    <p>Advanced Filters</p>
+    <!-- Public Figures Filter -->
+    <label for="public-figure">Public Figure (e.g., Taylor Swift):</label>
+    <input type="text" id="public-figure" name="public-figure" placeholder="Enter a name">
+    <br><br>
+
+    <!-- Companies and Organizations Filter -->
+    <label for="company">Company/Organization (e.g., NBA):</label>
+    <input type="text" id="company" name="company" placeholder="Enter a name">
+    <br><br>
+
+    <!-- Stocks and Crypto Filter -->
+    <label for="stock-crypto">Stock/Crypto (e.g., Bitcoin or TSLA):</label>
+    <input type="text" id="stock-crypto" name="stock-crypto" placeholder="Enter a name">
+    <br><br>
+
+    <!-- Submit Button -->
+    <button type="submit">Get News</button>
+  </form>
+
+  <ul id="articles-list"></ul>
+
+  <script>
+    const apiKey = 'b9b25782075944c282a534210d4027eb';
+
+    // Disable one filter when the other is selected
+    document.getElementById('category').addEventListener('change', function() {
+      if (this.value) {
+        document.getElementById('source').disabled = true;
+        document.getElementById('source').value = '';  // Reset the source dropdown
+      } else {
+        document.getElementById('source').disabled = false;
+      }
+    });
+
+    document.getElementById('source').addEventListener('change', function() {
+      if (this.value) {
+        document.getElementById('category').disabled = true;
+        document.getElementById('category').value = '';  // Reset the category dropdown
+      } else {
+        document.getElementById('category').disabled = false;
+      }
+    });
+
+    document.getElementById('news-filters').addEventListener('submit', async function(event) {
+      event.preventDefault();
+
+      // Collect the selected filter values
+      const category = document.getElementById('category').value;
+      const source = document.getElementById('source').value;
+
+      // Initialize the API URL
+      let url = `https://newsapi.org/v2/top-headlines?apiKey=${apiKey}`;
+
+      // Check if category is selected
+      if (category) {
+        url += `&category=${category}`;
+      }
+      // Check if source is selected
+      else if (source) {
+        url += `&sources=${source}`;
+      }
+
+      try {
+        const response = await fetch(url);
+        const data = await response.json();
+
+        const articlesList = document.getElementById('articles-list');
+        articlesList.innerHTML = ''; // Clear previous results
+
+        if (data.status === 'ok' && data.articles.length > 0) {
+          data.articles.slice(0, 10).forEach(article => {
+            const listItem = document.createElement('li');
+            listItem.innerHTML = `
+              <strong>Title:</strong> ${article.title} <br>
+              <strong>Author:</strong> ${article.author || 'Unknown'} <br>
+              <strong>Description:</strong> ${article.description || 'No description available.'} <br>
+              <strong>Source:</strong> ${article.source.name} <br>
+              <strong>URL:</strong> <a href="${article.url}" target="_blank">Read more</a><br>
+              <img src="${article.urlToImage}" alt="Image" style="width:100px;">
+              <hr>
+            `;
+            articlesList.appendChild(listItem);
+          });
+        } else {
+          articlesList.innerHTML = '<li>No articles found for the selected filters.</li>';
+        }
+      } catch (error) {
+        console.error('Error fetching articles:', error);
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>News API Filters Form</title>
+</head>
+<body>
+  <h1>Filter News Articles</h1>
+
+  <form id="news-filters">
+    <!-- Category Filter -->
+    <label for="category">Category:</label>
+    <select id="category" name="category">
+      <option value="">Select Category</option>
+      <option value="business">Business</option>
+      <option value="entertainment">Entertainment</option>
+      <option value="general">General</option>
+      <option value="health">Health</option>
+      <option value="science">Science</option>
+      <option value="sports">Sports</option>
+      <option value="technology">Technology</option>
+    </select>
+    <br><br>
+
+    <!-- Source Filter -->
+    <label for="source">Source:</label>
+    <select id="source" name="source">
+      <option value="">Select Source</option>
+      <option value="bbc-news">BBC News</option>
+      <option value="nbc-news">NBC News</option>
+      <option value="fox-news">Fox News</option>
+      <option value="time">Time</option>
+      <option value="politico">Politico</option>
+      <option value="associated-press">Associated Press</option>
+      <option value="the-washington-post">The Washington Post</option>
+      <option value="al-jazeera-english">Al Jazeera</option>
+      <option value="bloomberg">Bloomberg</option>
+      <option value="mashable">Mashable</option>
+      <option value="the-verge">The Verge</option>
+      <option value="espn">ESPN</option>
+      <option value="fortune">Fortune</option>
+    </select>
+    <br><br>
+
+    <p>Advanced Filters</p>
+    <!-- Public Figures Filter -->
+    <label for="public-figure">Public Figure (e.g., Taylor Swift):</label>
+    <input type="text" id="public-figure" name="public-figure" placeholder="Enter a name">
+    <br><br>
+
+    <!-- Companies and Organizations Filter -->
+    <label for="company">Company/Organization (e.g., NBA):</label>
+    <input type="text" id="company" name="company" placeholder="Enter a name">
+    <br><br>
+
+    <!-- Stocks and Crypto Filter -->
+    <label for="stock-crypto">Stock/Crypto (e.g., Bitcoin or TSLA):</label>
+    <input type="text" id="stock-crypto" name="stock-crypto" placeholder="Enter a name">
+    <br><br>
+
+    <!-- Submit Button -->
+    <button type="submit">Get News</button>
+  </form>
+
+  <ul id="articles-list"></ul>
+
+  <script>
+    const apiKey = 'b9b25782075944c282a534210d4027eb';
+
+    // Disable one filter when the other is selected
+    document.getElementById('category').addEventListener('change', function() {
+      const publicFigureInput = document.getElementById('public-figure');
+      const companyInput = document.getElementById('company');
+      const stockCryptoInput = document.getElementById('stock-crypto');
+      if (this.value) {
+        document.getElementById('source').disabled = true;
+        publicFigureInput.disabled = true;  // Disable Public Figure input
+        companyInput.disabled = true;  // Disable Company input
+        stockCryptoInput.disabled = true;  // Disable Stock/Crypto input
+        document.getElementById('source').value = '';  // Reset the source dropdown
+      } else {
+        document.getElementById('source').disabled = false;
+        publicFigureInput.disabled = false;  // Re-enable Public Figure input if category is cleared
+        companyInput.disabled = false;  // Re-enable Company input
+        stockCryptoInput.disabled = false;  // Re-enable Stock/Crypto input
+      }
+    });
+
+    document.getElementById('source').addEventListener('change', function() {
+      const publicFigureInput = document.getElementById('public-figure');
+      const companyInput = document.getElementById('company');
+      const stockCryptoInput = document.getElementById('stock-crypto');
+      if (this.value) {
+        document.getElementById('category').disabled = true;
+        publicFigureInput.disabled = true;  // Disable Public Figure input
+        companyInput.disabled = true;  // Disable Company input
+        stockCryptoInput.disabled = true;  // Disable Stock/Crypto input
+        document.getElementById('category').value = '';  // Reset the category dropdown
+      } else {
+        document.getElementById('category').disabled = false;
+        publicFigureInput.disabled = false;  // Re-enable Public Figure input if source is cleared
+        companyInput.disabled = false;  // Re-enable Company input
+        stockCryptoInput.disabled = false;  // Re-enable Stock/Crypto input
+      }
+    });
+
+    // Disable filters if another one is entered
+    document.getElementById('public-figure').addEventListener('input', function () {
+        const publicFigureValue = this.value.trim();
+        const categorySelect = document.getElementById('category');
+        const sourceSelect = document.getElementById('source');
+        const companyInput = document.getElementById('company');
+        const stockCryptoInput = document.getElementById('stock-crypto');
+    
+        if (publicFigureValue) {
+            // Disable other filters if Public Figure is entered
+            categorySelect.disabled = true;
+            sourceSelect.disabled = true;
+            companyInput.disabled = true;
+            stockCryptoInput.disabled = true;
+            categorySelect.value = ''; // Reset category dropdown
+            sourceSelect.value = ''; // Reset source dropdown
+            companyInput.value = ''; // Reset company input
+            stockCryptoInput.value = ''; // Reset stock/crypto input
+        } else {
+            // Re-enable filters if Public Figure is cleared
+            categorySelect.disabled = false;
+            sourceSelect.disabled = false;
+            companyInput.disabled = false;
+            stockCryptoInput.disabled = false;
+        }
+    });
+
+    // Similar logic for Company/Organization filter
+    document.getElementById('company').addEventListener('input', function () {
+        const companyValue = this.value.trim();
+        const categorySelect = document.getElementById('category');
+        const sourceSelect = document.getElementById('source');
+        const publicFigureInput = document.getElementById('public-figure');
+        const stockCryptoInput = document.getElementById('stock-crypto');
+    
+        if (companyValue) {
+            // Disable other filters if Company/Organization is entered
+            categorySelect.disabled = true;
+            sourceSelect.disabled = true;
+            publicFigureInput.disabled = true;
+            stockCryptoInput.disabled = true;
+            categorySelect.value = ''; // Reset category dropdown
+            sourceSelect.value = ''; // Reset source dropdown
+            publicFigureInput.value = ''; // Reset public figure input
+            stockCryptoInput.value = ''; // Reset stock/crypto input
+        } else {
+            // Re-enable filters if Company/Organization is cleared
+            categorySelect.disabled = false;
+            sourceSelect.disabled = false;
+            publicFigureInput.disabled = false;
+            stockCryptoInput.disabled = false;
+        }
+    });
+
+    // Similar logic for Stock/Crypto filter
+    document.getElementById('stock-crypto').addEventListener('input', function () {
+        const stockCryptoValue = this.value.trim();
+        const categorySelect = document.getElementById('category');
+        const sourceSelect = document.getElementById('source');
+        const publicFigureInput = document.getElementById('public-figure');
+        const companyInput = document.getElementById('company');
+    
+        if (stockCryptoValue) {
+            // Disable other filters if Stock/Crypto is entered
+            categorySelect.disabled = true;
+            sourceSelect.disabled = true;
+            publicFigureInput.disabled = true;
+            companyInput.disabled = true;
+            categorySelect.value = ''; // Reset category dropdown
+            sourceSelect.value = ''; // Reset source dropdown
+            publicFigureInput.value = ''; // Reset public figure input
+            companyInput.value = ''; // Reset company input
+        } else {
+            // Re-enable filters if Stock/Crypto is cleared
+            categorySelect.disabled = false;
+            sourceSelect.disabled = false;
+            publicFigureInput.disabled = false;
+            companyInput.disabled = false;
+        }
+    });
+
+    // Handle form submission
+    document.getElementById('news-filters').addEventListener('submit', async function(event) {
+      event.preventDefault();
+
+      // Collect the selected filter values
+      const category = document.getElementById('category').value;
+      const source = document.getElementById('source').value;
+      const publicFigure = document.getElementById('public-figure').value.trim();
+      const company = document.getElementById('company').value.trim();
+      const stockCrypto = document.getElementById('stock-crypto').value.trim();
+
+      // Initialize the API URL
+      let url = `https://newsapi.org/v2/top-headlines?apiKey=${apiKey}`;
+
+      // Apply filters to URL
+      if (category && !publicFigure && !company && !stockCrypto) {
+        url += `&category=${category}`;
+      } else if (source && !publicFigure && !company && !stockCrypto) {
+        url += `&sources=${source}`;
+      }
+
+      if (publicFigure) {
+        url += `&q=${encodeURIComponent(publicFigure)}`;
+      }
+
+      if (company) {
+        url += `&q=${encodeURIComponent(company)}`;
+      }
+
+      if (stockCrypto) {
+        url += `&q=${encodeURIComponent(stockCrypto)}`;
+      }
+
+      try {
+        const response = await fetch(url);
+        const data = await response.json();
+
+        const articlesList = document.getElementById('articles-list');
+        articlesList.innerHTML = ''; // Clear previous results
+
+        if (data.status === 'ok' && data.articles.length > 0) {
+          data.articles.slice(0, 10).forEach(article => {
+            const listItem = document.createElement('li');
+            listItem.innerHTML = `
+              <strong>Title:</strong> ${article.title} <br>
+              <strong>Author:</strong> ${article.author || 'Unknown'} <br>
+              <strong>Description:</strong> ${article.description || 'No description available.'} <br>
+              <strong>Source:</strong> ${article.source.name} <br>
+              <strong>URL:</strong> <a href="${article.url}" target="_blank">Read more</a><br>
+              <img src="${article.urlToImage}" alt="Image" style="width:100px;">
+              <hr>
+            `;
+            articlesList.appendChild(listItem);
+          });
+        } else {
+          articlesList.innerHTML = '<li>No articles found for the selected filters.</li>';
+        }
+      } catch (error) {
+        console.error('Error fetching articles:', error);
+      }
+    });
+  </script>
+</body>
+</html>

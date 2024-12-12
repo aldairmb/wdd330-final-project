@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>News API Filters Form</title>
+</head>
+<body>
+  <h1>Filter News Articles</h1>
+  <p>General Filters</p>
+  <form id="news-filters">
+    <!-- Language Filter -->
+    <label for="language">Language:</label>
+    <select id="language" name="language">
+      <option value="en">English</option>
+      <option value="es">Spanish</option>
+      <option value="fr">French</option>
+    </select>
+    <br><br>
+
+    <!-- Country Filter -->
+    <label for="country">Country:</label>
+    <select id="country" name="country">
+      <option value="us">United States</option>
+      <option value="ca">Canada</option>
+      <option value="mx">Mexico</option>
+      <option value="gb">United Kingdom</option>
+      <option value="">Global</option>
+    </select>
+    <br><br>
+
+    <p>Advanced Filters</p>
+    <!-- Public Figures Filter -->
+    <label for="public-figure">Public Figure (e.g., Taylor Swift):</label>
+    <input type="text" id="public-figure" name="public-figure" placeholder="Enter a name">
+    <br><br>
+
+    <!-- Companies and Organizations Filter -->
+    <label for="company">Company/Organization (e.g., NBA):</label>
+    <input type="text" id="company" name="company" placeholder="Enter a name">
+    <br><br>
+
+    <!-- Stocks and Crypto Filter -->
+    <label for="stock-crypto">Stock/Crypto (e.g., Bitcoin or TSLA):</label>
+    <input type="text" id="stock-crypto" name="stock-crypto" placeholder="Enter a name">
+    <br><br>
+
+    <!-- Submit Button -->
+    <button type="submit">Get News</button>
+  </form>
+
+  <ul id="articles-list"></ul>
+
+  <script>
+    const apiKey = 'b9b25782075944c282a534210d4027eb';
+
+    document.getElementById('news-filters').addEventListener('submit', async function(event) {
+      event.preventDefault();
+
+      // Collect the selected filter values
+      const language = document.getElementById('language').value;
+      const country = document.getElementById('country').value;
+
+      // Determine the API URL based on the selected filters
+      let url = `https://newsapi.org/v2/top-headlines?apiKey=${apiKey}`;
+
+      if (country) {
+        url += `&country=${country}`;
+      } else if (language) {
+        url += `&language=${language}`;
+      }
+
+      try {
+        const response = await fetch(url);
+        const data = await response.json();
+
+        const articlesList = document.getElementById('articles-list');
+        articlesList.innerHTML = ''; // Clear previous results
+
+        if (data.status === 'ok' && data.articles.length > 0) {
+          data.articles.slice(0, 10).forEach(article => {
+            const listItem = document.createElement('li');
+            listItem.innerHTML = `
+              <strong>Title:</strong> ${article.title} <br>
+              <strong>Author:</strong> ${article.author || 'Unknown'} <br>
+              <strong>Description:</strong> ${article.description || 'No description available.'} <br>
+              <strong>Source:</strong> ${article.source.name} <br>
+              <strong>URL:</strong> <a href="${article.url}" target="_blank">Read more</a><br>
+              <img src="${article.urlToImage}" alt="Image" style="width:100px;">
+              <hr>
+            `;
+            articlesList.appendChild(listItem);
+          });
+        } else {
+          articlesList.innerHTML = '<li>No articles found for the selected filters.</li>';
+        }
+      } catch (error) {
+        console.error('Error fetching articles:', error);
+      }
+    });
+  </script>
+</body>
+</html>
